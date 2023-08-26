@@ -10,29 +10,28 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "Trash")
-public class Trash {
+@Table(name = "Interests")
+public class Interests {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "trash_generator")
-    @SequenceGenerator(name = "trash_generator", sequenceName = "trash_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "interests_generator")
+    @SequenceGenerator(name = "interests_generator", sequenceName = "interests_seq", allocationSize = 1)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_tovar")
-    private Tovar tovar;
-
-    private int quantity;
+    @JoinColumn(name = "user_id")
+    private Users user;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_cart")
-    private Carts cart;
+    @JoinColumn(name = "tag_id")
+    private Tags tag;
 
+    private float coeff;
 
-    public Trash(Tovar tovar, int quantity, Carts cart) {
-        this.tovar = tovar;
-        this.quantity = quantity;
-        this.cart = cart;
+    public Interests(Users user, Tags tag, float coeff) {
+        this.user = user;
+        this.tag = tag;
+        this.coeff = coeff;
     }
 
 }

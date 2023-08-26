@@ -1,298 +1,194 @@
-CREATE TABLE public.tovar (
+CREATE TABLE public.places (
 	id serial NOT NULL,
-	id_category integer NOT NULL,
+	category_id integer NOT NULL,
+	name varchar(100) NOT NULL unique,
+	url varchar,
+	adress varchar,
+	time_work varchar,
+	position varchar,
+	CONSTRAINT places_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE public.images (
+	id serial NOT NULL,
+	image varchar NOT NULL,
+	place_id integer NOT NULL,
+	CONSTRAINT places_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE public.tags (
+	id serial NOT NULL,
 	name varchar(100) NOT NULL,
-	cost integer NOT NULL CHECK(cost > 0),
-	quantity_in_stock integer NOT NULL CHECK(quantity_in_stock >= 0),
-	description varchar(100) NOT NULL,
-	photo bigint NULL,
-	CONSTRAINT tovar_pk PRIMARY KEY (id)
+	CONSTRAINT tags_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.booked (
+CREATE TABLE public.categories (
 	id serial NOT NULL,
-	id_tovar integer NOT NULL,
-	booked_quantity integer NOT NULL CHECK(booked_quantity > 0),
-	id_user integer NOT NULL,
-	CONSTRAINT booked_pk PRIMARY KEY (id)
+	name varchar(100) NOT NULL,
+	CONSTRAINT categories_pk PRIMARY KEY (id)
 );
 
-
-CREATE TABLE public.category (
+CREATE TABLE public.tags_places (
 	id serial NOT NULL,
-	name varchar(100) UNIQUE NOT NULL,
-	description varchar(100) NOT NULL,
-	CONSTRAINT category_pk PRIMARY KEY (id)
+	place_id integer NOT NULL,
+	tag_id integer NOT NULL,
+	CONSTRAINT tags_places_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.journal (
-	id serial NOT NULL,
-	user_id integer NOT NULL,
-	datein timestamp NOT NULL,
-	description varchar(100) NULL,
-	CONSTRAINT journal_pk PRIMARY KEY (id)
-);
 
 CREATE TABLE public.users (
 	id serial NOT NULL,
-	id_telegram bigint NOT NULL UNIQUE,
-	name varchar(100) NOT NULL UNIQUE,
-	password varchar(100) NOT NULL,
-	active boolean NOT NULL,
-	firstname varchar(100) NOT NULL,
-	lastname varchar(100) NULL,
+	mail varchar(100) NOT NULL UNIQUE,
+	password varchar NOT NULL,
 	phone varchar(15) NULL,
-	mail varchar(100) NULL,
-	agreement boolean NOT NULL,
+	firstname varchar(100),
+	lastname varchar(100),
+	login varchar(100) NOT NULL UNIQUE,
+	role varchar(100),
 	CONSTRAINT users_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.roles (
-	id serial NOT NULL,
-	name varchar(100) NOT NULL UNIQUE,
-	description varchar(100) NULL,
-	CONSTRAINT roles_pk PRIMARY KEY (id)
-);
-
-CREATE TABLE public.users_roles (
+CREATE TABLE public.interests(
 	id serial NOT NULL,
 	user_id integer NOT NULL,
-	role_id integer NOT NULL,
-	UNIQUE (user_id, role_id),
-	CONSTRAINT users_roles_pk PRIMARY KEY (id)
+	tag_id integer NOT NULL,
+    coeff float(3) NOT NULL,
+	CONSTRAINT interests_tags_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.carts (
-	id serial NOT NULL,
-	id_user integer NOT NULL,
-	description varchar(100) NULL,
-	CONSTRAINT carts_pk PRIMARY KEY (id)
-);
-
-CREATE TABLE public.trash (
-	id serial NOT NULL,
-	id_tovar integer NOT NULL,
-	quantity integer NOT NULL CHECK(quantity > 0),
-	id_cart integer NOT NULL,
-	CONSTRAINT trash_pk PRIMARY KEY (id)
-);
-
-CREATE TABLE public.remind (
-	id serial NOT NULL,
-	id_user integer NOT NULL,
-	id_tovar integer NOT NULL,
-	is_delivered boolean NOT NULL,
-	quantity integer NOT NULL CHECK(quantity > 0),
-	CONSTRAINT remind_pk PRIMARY KEY (id)
-);
-
-CREATE TABLE public.archive_carts (
-	id serial NOT NULL,
-	id_user integer NOT NULL,
-	description varchar(100) NULL,
-	CONSTRAINT archive_carts_pk PRIMARY KEY (id)
-);
-
-CREATE TABLE public.archive_trash (
-	id serial NOT NULL,
-	id_tovar integer NOT NULL,
-	quantity integer NOT NULL CHECK(quantity > 0),
-	id_cart integer NOT NULL,
-	CONSTRAINT archive_trash_pk PRIMARY KEY (id)
-);
 
 CREATE SEQUENCE users_seq START 1 OWNED BY users.id;
-CREATE SEQUENCE carts_seq START 1 OWNED BY carts.id;
-CREATE SEQUENCE category_seq START 4 OWNED BY category.id;
-CREATE SEQUENCE remind_seq START 1 OWNED BY remind.id;
-CREATE SEQUENCE tovar_seq START 10 OWNED BY tovar.id;
-CREATE SEQUENCE trash_seq START 1 OWNED BY trash.id;
-CREATE SEQUENCE booked_seq START 1 OWNED BY booked.id;
-CREATE SEQUENCE roles_seq START 3 OWNED BY roles.id;
-CREATE SEQUENCE users_roles_seq START 2 OWNED BY users_roles.id;
-CREATE SEQUENCE journal_seq START 1 OWNED BY journal.id;
-CREATE SEQUENCE archive_trash_seq START 1 OWNED BY archive_trash.id;
-CREATE SEQUENCE archive_carts_seq START 1 OWNED BY archive_carts.id;
+CREATE SEQUENCE categories_seq START 4 OWNED BY categories.id;
+CREATE SEQUENCE tags_seq START 21 OWNED BY tags.id;
+CREATE SEQUENCE interests_seq START 1 OWNED BY interests.id;
+CREATE SEQUENCE places_seq START 10 OWNED BY places.id;
+CREATE SEQUENCE tags_places_seq START 26 OWNED BY tags_places.id;
+CREATE SEQUENCE images_seq START 20 OWNED BY images.id;
 
-ALTER TABLE tovar ADD CONSTRAINT tovar_fk0 FOREIGN KEY (id_category) REFERENCES category(id);
-ALTER TABLE carts ADD CONSTRAINT carts_fk0 FOREIGN KEY (id_user) REFERENCES users(id);
-ALTER TABLE trash ADD CONSTRAINT trash_fk0 FOREIGN KEY (id_cart) REFERENCES carts(id);
-ALTER TABLE trash ADD CONSTRAINT trash_fk1 FOREIGN KEY (id_tovar) REFERENCES tovar(id);
-ALTER TABLE remind ADD CONSTRAINT remind_fk0 FOREIGN KEY (id_user) REFERENCES users(id);
-ALTER TABLE remind ADD CONSTRAINT remind_fk1 FOREIGN KEY (id_tovar) REFERENCES tovar(id);
-ALTER TABLE booked ADD CONSTRAINT booked_fk0 FOREIGN KEY (id_tovar) REFERENCES tovar(id);
-ALTER TABLE booked ADD CONSTRAINT booked_fk1 FOREIGN KEY (id_user) REFERENCES users(id);
-ALTER TABLE users_roles ADD CONSTRAINT users_roles_fk0 FOREIGN KEY (user_id) REFERENCES users(id);
-ALTER TABLE users_roles ADD CONSTRAINT users_roles_fk1 FOREIGN KEY (role_id) REFERENCES roles(id);
-ALTER TABLE journal ADD CONSTRAINT journal_fk0 FOREIGN KEY (user_id) REFERENCES users(id);
-ALTER TABLE archive_carts ADD CONSTRAINT archive_carts_fk0 FOREIGN KEY (id_user) REFERENCES users(id);
-ALTER TABLE archive_trash ADD CONSTRAINT archive_trash_fk0 FOREIGN KEY (id_cart) REFERENCES archive_carts(id);
-ALTER TABLE archive_trash ADD CONSTRAINT archive_trash_fk1 FOREIGN KEY (id_tovar) REFERENCES tovar(id);
-
-CREATE OR REPLACE FUNCTION get_cart_by_user(var_id integer) RETURNS integer AS $$
-	DECLARE res integer;
-    BEGIN
-        SELECT id
-       		INTO res FROM carts WHERE id_user = var_id LIMIT 1;
-       	RETURN res;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE PROCEDURE archive_procedure(var_id integer)
-LANGUAGE SQL
-AS $$
-  	INSERT INTO archive_carts
-	SELECT *
-	FROM carts
-	WHERE carts.id_user = var_id;
-
-	INSERT INTO archive_trash
-	SELECT *
-	FROM trash
-	WHERE trash.id_cart = get_cart_by_user(var_id);
-
-	DELETE FROM trash WHERE trash.id_cart = get_cart_by_user(var_id);
-$$;
-
-CREATE OR REPLACE PROCEDURE delete_user_procedure(var_id integer)
-LANGUAGE SQL
-AS $$
-	DELETE FROM booked WHERE booked.id_user = var_id;
-	DELETE FROM remind WHERE remind.id_user = var_id;
-	DELETE FROM journal WHERE journal.user_id = var_id;
-	DELETE FROM users_roles WHERE users_roles.user_id = var_id;
-	DELETE FROM carts WHERE carts.id_user = var_id;
-	DELETE FROM archive_carts WHERE archive_carts.id_user = var_id;
-$$;
-
-CREATE OR REPLACE PROCEDURE delete_archive_carts_procedure(var_id integer)
-LANGUAGE SQL
-AS $$
-	DELETE FROM archive_trash WHERE archive_trash.id_cart = var_id;
-$$;
+ALTER TABLE places ADD CONSTRAINT places_fk0 FOREIGN KEY (category_id) REFERENCES categories(id);
+ALTER TABLE tags_places ADD CONSTRAINT tags_places_fk0 FOREIGN KEY (place_id) REFERENCES places(id);
+ALTER TABLE tags_places ADD CONSTRAINT tags_places_fk1 FOREIGN KEY (tag_id) REFERENCES tags(id);
+ALTER TABLE interests ADD CONSTRAINT interests_fk0 FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE interests ADD CONSTRAINT interests_fk1 FOREIGN KEY (tag_id) REFERENCES tags(id);
+ALTER TABLE images ADD CONSTRAINT images_fk0 FOREIGN KEY (place_id) REFERENCES places(id);
 
 
-CREATE OR REPLACE FUNCTION users() RETURNS trigger AS $$
-    BEGIN
-        IF NOT NEW.mail IS NULL AND NOT NEW.mail ~ '^[A-z0-9]*@[a-z]*\.[a-z]{1,4}$' THEN
-            RAISE EXCEPTION 'email must be valid';
-        END IF;
-		IF NEW."active" IS NULL THEN
-            NEW."active" = true;
-        END IF;
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
+INSERT INTO users (id, mail, password, login, role) VALUES (0, 'Admin', '$2a$10$bWeuWYhzH72vPoHky7o.9Ouwiz6t5k3nfA8anfLHBu8.edDQjE/bS', 'Admin', 'ADMIN');
 
-CREATE OR REPLACE FUNCTION role() RETURNS trigger AS $$
-    BEGIN
-        IF NOT NEW."name" IS NULL AND NOT NEW."name" ~ '^ROLE_[A-Z]*$' THEN
-            IF NOT NEW."name" ~ '[A-Z]*$' THEN
-                RAISE EXCEPTION 'role must be valid';
-            ELSE
-                NEW."name" = 'ROLE_' || NEW."name";
-            END IF;
-        END IF;
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
+INSERT INTO categories (id, name) VALUES (1, 'Рестораны');
+INSERT INTO categories (id, name) VALUES (2, 'Достопримечательности');
+INSERT INTO categories (id, name) VALUES (3, 'Отели');
 
-CREATE OR REPLACE FUNCTION journal() RETURNS trigger AS $$
-    BEGIN
-        IF TG_OP != 'UPDATE' THEN
-            NEW."datein" = CURRENT_TIMESTAMP;
-        END IF;
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
+INSERT INTO tags (id, name) VALUES (1, 'Музей');
+INSERT INTO tags (id, name) VALUES (2, 'С детьми');
+INSERT INTO tags (id, name) VALUES (3, 'РРР');
+INSERT INTO tags (id, name) VALUES (4, 'РР');
+INSERT INTO tags (id, name) VALUES (5, 'Р');
+INSERT INTO tags (id, name) VALUES (6, '18+');
+INSERT INTO tags (id, name) VALUES (7, 'Круглосуточно');
+INSERT INTO tags (id, name) VALUES (8, 'В центре');
+INSERT INTO tags (id, name) VALUES (9, 'Веган');
+INSERT INTO tags (id, name) VALUES (10, 'Японская кухня');
+INSERT INTO tags (id, name) VALUES (11, 'Кавказская кухня');
+INSERT INTO tags (id, name) VALUES (12, 'Европейская кухня');
+INSERT INTO tags (id, name) VALUES (13, 'Кофе');
+INSERT INTO tags (id, name) VALUES (14, 'Чай');
+INSERT INTO tags (id, name) VALUES (15, 'Сладкое');
+INSERT INTO tags (id, name) VALUES (16, 'Алкоголь');
+INSERT INTO tags (id, name) VALUES (17, 'Танцы');
+INSERT INTO tags (id, name) VALUES (18, 'Настольные игры');
+INSERT INTO tags (id, name) VALUES (19, 'Видео игры');
+INSERT INTO tags (id, name) VALUES (20, 'Кальян');
 
-CREATE OR REPLACE FUNCTION archive() RETURNS trigger AS $$
-    BEGIN
-        CALL archive_procedure(OLD.id_user);
-        RETURN OLD;
-    END;
-$$ LANGUAGE plpgsql;
+INSERT INTO places (id, category_id, name, adress, time_work, position) VALUES (1, 1, "Белуга", "ул. Фиолетова, 1-3, Астрахань",
+"Понедельник, 11:00 – 00:00, Вторник 11:00 – 00:00, Среда 11:00 – 00:00, Четверг 11:00 – 00:00, Пятница 11:00 – 00:00, Суббота 11:00 – 00:00, Воскресенье 11:00 – 00:00",
+"46.354861 48.033035");
+INSERT INTO places (id, category_id, name, url, adress, time_work, position) VALUES (2, 1, "Розмарин", "https://rozmarin.taplink.ws/", "Эспланадная ул., 4А, Астрахань",
+"Понедельник 09:00 – 23:00, Вторник 09:00 – 23:00, Среда 09:00 – 23:00, Четверг 09:00 – 23:00, Пятница 09:00 – 23:00, Суббота 09:00 – 23:00, Воскресенье 09:00 – 23:00",
+"46.351676 48.035353");
+INSERT INTO places (id, category_id, name, url, adress, time_work, position) VALUES (3, 1, "Falafel Cafe", "http://falafelcafe.ru/", "Эспланадная ул., 19/7/28, Астрахань",
+"Понедельник 10:00 – 22:00, Вторник 10:00 – 22:00, Среда 10:00 – 22:00, Четверг 10:00 – 22:00, Пятница 10:00 – 22:00, Суббота 10:00 – 22:00, Воскресенье 10:00 – 22:00",
+"46.352317 48.038236");
 
---CREATE OR REPLACE FUNCTION delete_cart() RETURNS trigger AS $$
---    BEGIN
---        CALL delete_cart_procedure(OLD.id);
---        RETURN OLD;
---    END;
---$$ LANGUAGE plpgsql;
+INSERT INTO places (id, category_id, name, url, adress, time_work, position) VALUES (4, 2, "Астраханский Кремль", "https://astmuseum.ru/ru/", "улица В. Тредиаковского, 2/1, Астрахань",
+"Понедельник 10:00 – 21:00, Вторник 10:00 – 21:00, Среда 10:00 – 21:00, Четверг 10:00 – 21:00, Пятница 10:00 – 21:00, Суббота 10:00 – 21:00, Воскресенье 10:00 – 21:00",
+"46.349574, 48.033646");
+INSERT INTO places (id, category_id, name, adress, time_work, position) VALUES (5, 2, "Дом Тетюшинова", "Коммунистическая улица, 26, Астрахань",
+"Понедельник Выходной, Вторник 10:00 – 18:00, Среда 10:00 – 18:00, Четверг 13:00 – 21:00, Пятница 10:00 – 18:00, Суббота 10:00 – 18:00, Воскресенье 10:00 – 18:00",
+"46.355016, 48.043779");
+INSERT INTO places (id, category_id, name, url, adress, time_work, position) VALUES (6, 2, "Историко-архитектурный музей-заповедник", "https://astmuseum.ru/ru/", "Коммунистическая ул., 5/15, Астрахань",
+"Понедельник Выходной, Вторник 10:00 – 17:00, Среда 10:00 – 17:00, Четверг 10:00 – 17:00, Пятница 10:00 – 19:00, Суббота 10:00 – 19:00, Воскресенье 10:00 – 17:00",
+"46.349561, 48.041551");
 
-CREATE OR REPLACE FUNCTION delete_archive_carts() RETURNS trigger AS $$
-    BEGIN
-        CALL delete_archive_carts_procedure(OLD.id);
-        RETURN OLD;
-    END;
-$$ LANGUAGE plpgsql;
+INSERT INTO places (id, category_id, name, url, adress, time_work, position) VALUES (7, 3, "AZIMUT Сити Отель", "https://azimuthotels.com/ru/astrakhan/azimut-hotel-astrakhan?utm_content=main&utm_medium=link&utm_source=yasprav", "Кремлёвская улица, 4, Астрахань",
+"Понедельник Круглосуточно, Вторник Круглосуточно, Среда Круглосуточно, Четверг Круглосуточно, Пятница Круглосуточно, Суббота Круглосуточно, Воскресенье Круглосуточно",
+"46.348703, 48.020441");
+INSERT INTO places (id, category_id, name, adress, time_work, position) VALUES (8, 3, "7 Небо", "Коммунистическая улица, 21/27, Астрахань",
+"Понедельник Круглосуточно, Вторник Круглосуточно, Среда Круглосуточно, Четверг Круглосуточно, Пятница Круглосуточно, Суббота Круглосуточно, Воскресенье Круглосуточно",
+"46.353915, 48.042773");
+INSERT INTO places (id, category_id, name, url, adress, time_work, position) VALUES (9, 3, "Bonotel", "https://бон-отель.рф/", "улица Мусы Джалиля, 1, Астрахань",
+"Понедельник Круглосуточно, Вторник Круглосуточно, Среда Круглосуточно, Четверг Круглосуточно, Пятница Круглосуточно, Суббота Круглосуточно, Воскресенье Круглосуточно",
+"46.346961, 48.033188");
 
-CREATE OR REPLACE FUNCTION delete_user() RETURNS trigger AS $$
-    BEGIN
-        CALL delete_user_procedure(OLD.id);
-        RETURN OLD;
-    END;
-$$ LANGUAGE plpgsql;
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (1, 1, 3);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (2, 1, 12);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (3, 1, 16);
 
-CREATE OR REPLACE TRIGGER delete_user BEFORE DELETE ON users
-FOR EACH ROW
-EXECUTE FUNCTION delete_user();
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (4, 2, 4);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (5, 2, 8);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (6, 2, 13);
 
-CREATE OR REPLACE TRIGGER delete_archive_carts BEFORE DELETE ON archive_carts
-FOR EACH ROW
-EXECUTE FUNCTION delete_archive_carts();
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (7, 3, 4);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (8, 3, 8);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (9, 3, 13);
 
-CREATE OR REPLACE TRIGGER archive BEFORE DELETE ON carts
-FOR EACH ROW
-EXECUTE FUNCTION archive();
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (10, 4, 1);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (11, 4, 2);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (12, 4, 8);
 
---CREATE OR REPLACE TRIGGER delete_cart BEFORE DELETE ON carts
---FOR EACH ROW
---EXECUTE FUNCTION delete_cart();
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (13, 5, 1);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (14, 5, 2);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (15, 5, 8);
 
-CREATE OR REPLACE TRIGGER journal BEFORE INSERT OR UPDATE ON journal
-FOR EACH ROW
-EXECUTE FUNCTION journal();
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (16, 6, 1);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (17, 6, 2);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (18, 6, 8);
 
-CREATE OR REPLACE TRIGGER users BEFORE INSERT OR UPDATE ON users
-FOR EACH ROW
-EXECUTE FUNCTION users();
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (19, 7, 3);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (20, 7, 7);
 
-CREATE OR REPLACE TRIGGER role BEFORE INSERT OR UPDATE ON roles
-FOR EACH ROW
-EXECUTE FUNCTION role();
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (21, 8, 4);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (22, 8, 8);
 
-INSERT INTO roles (id, name, description) VALUES (1, 'USER', 'Lorem Ipsum');
-INSERT INTO roles (id, name, description) VALUES (2, 'ADMIN', 'Lorem Ipsum');
-
-INSERT INTO users (id, id_telegram, name, password, active, firstname, agreement) VALUES (0, 0, 'Admin', 'Admin', true, 'Admin', false);
-
-INSERT INTO users_roles (id, user_id, role_id) VALUES (1, 0, 2);
-
-INSERT INTO category (id, name, description) VALUES (1, 'Lego', 'Lorem Ipsum');
-INSERT INTO category (id, name, description) VALUES (2, 'Barbie', 'Lorem Ipsum');
-INSERT INTO category (id, name, description) VALUES (3, 'Mashiny', 'Lorem Ipsum');
-
-INSERT INTO tovar (id, id_category , name, cost, quantity_in_stock, description)
-VALUES (1, 1, 'Конструктор LEGO DUPLO Town Грузовой поезд', 11999, 100, 'Lorem Ipsum');
-INSERT INTO tovar (id, id_category , name, cost, quantity_in_stock, description)
-VALUES (2, 1, 'Конструктор LEGO Minecraft Шахта крипера', 8989, 100, 'Lorem Ipsum');
-INSERT INTO tovar (id, id_category , name, cost, quantity_in_stock, description)
-VALUES (3, 1, 'Конструктор LEGO Super Mario Приключения вместе с Марио', 4169, 100, 'Lorem Ipsum');
-
-INSERT INTO tovar (id, id_category , name, cost, quantity_in_stock, description)
-VALUES (4, 2, 'Набор игровой Barbie Спа-салон', 2199, 100, 'Lorem Ipsum');
-INSERT INTO tovar (id, id_category , name, cost, quantity_in_stock, description)
-VALUES (5, 2, 'Набор игровой Barbie Йога', 2499, 100, 'Lorem Ipsum');
-INSERT INTO tovar (id, id_category , name, cost, quantity_in_stock, description)
-VALUES (6, 2, 'Набор игровой Barbie для маникюра и педикюра', 2199, 100, 'Lorem Ipsum');
-
-INSERT INTO tovar (id, id_category , name, cost, quantity_in_stock, description)
-VALUES (7, 3, 'Машина Mobicaro 1:16 пожарная инерционная', 699, 100, 'Lorem Ipsum');
-INSERT INTO tovar (id, id_category , name, cost, quantity_in_stock, description)
-VALUES (8, 3, 'Модель сборная Mobicaro Экскаватор с шуруповертом-двигателем', 889, 100, 'Lorem Ipsum');
-INSERT INTO tovar (id, id_category , name, cost, quantity_in_stock, description)
-VALUES (9, 3, 'Машина Mobicaro 1:16 Мусоровоз инерционная', 649, 100, 'Lorem Ipsum');
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (23, 9, 2);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (24, 9, 3);
+INSERT INTO tags_places (id, place_id, tag_id) VALUES (25, 9, 8);
 
 
+INSERT INTO images (id, image, place_id) VALUES (1, "https://vizitastra.ru/wp-content/uploads/2019/10/IMG-9659.jpg", 1);
+INSERT INTO images (id, image, place_id) VALUES (2, "https://i0.photo.2gis.com/images/branch/8/1125899943872538_e4da.jpg", 1);
+INSERT INTO images (id, image, place_id) VALUES (3, "https://media-cdn.tripadvisor.com/media/photo-s/1b/b0/e4/e1/img-20200804-152100-largejpg.jpg", 1);
 
+INSERT INTO images (id, image, place_id) VALUES (4, "https://rozmarin-astrakhan-esplanadnaya.restexpert.ru/photos/restaurant/59161/644x483/336078.jpg", 2);
+INSERT INTO images (id, image, place_id) VALUES (5, "https://make-eat.ru/assets/cache_image/assets/gallery/206/1945_0x0_ed1.jpg", 2);
+
+INSERT INTO images (id, image, place_id) VALUES (6, "https://i0.photo.2gis.com/images/branch/8/1125899952187433_1952.jpg", 3);
+INSERT INTO images (id, image, place_id) VALUES (7, "https://avatars.mds.yandex.net/get-altay/4802381/2a0000017759d1421def08ff55e720c01de1/XXL", 3);
+
+INSERT INTO images (id, image, place_id) VALUES (8, "https://top7travel.ru/wp-content/uploads/2022/08/98y9v8a90y80a8ya.jpg", 4);
+INSERT INTO images (id, image, place_id) VALUES (9, "http://s1.fotokto.ru/photo/full/559/5596669.jpg", 4);
+
+INSERT INTO images (id, image, place_id) VALUES (10, "https://astrakhanfm.ru/wp-content/uploads/2017/07/dom_kupca_tetyushinova.jpg", 5);
+INSERT INTO images (id, image, place_id) VALUES (11, "https://i.pinimg.com/736x/90/b1/cc/90b1cc5205470d7b5c043798c0004d02.jpg", 5);
+
+INSERT INTO images (id, image, place_id) VALUES (12, "https://img-fotki.yandex.ru/get/15537/51132524.62/0_ecea0_3928ef16_orig.jpg", 6);
+INSERT INTO images (id, image, place_id) VALUES (13, "https://extraguide.ru/images/blog/2022/12-12-xu1gt0-kraevedcheskiy-muzey.jpg", 6);
+
+INSERT INTO images (id, image, place_id) VALUES (14, "https://tsvto.ru/public/sites/pages/2753/235417.jpeg", 7);
+INSERT INTO images (id, image, place_id) VALUES (15, "https://avatars.mds.yandex.net/get-altay/5476806/2a0000017d995cdae6dcc4313f85d43134ce/XXXL", 7);
+
+INSERT INTO images (id, image, place_id) VALUES (16, "http://love-astrakhan.ru/img/100000014.jpg", 8);
+INSERT INTO images (id, image, place_id) VALUES (17, "http://vetert.ru/rossiya/astrakhan/gostinica/116-otel-7-nebo/11.jpg", 8);
+
+INSERT INTO images (id, image, place_id) VALUES (18, "http://photos.wikimapia.org/p/00/04/13/54/14_full.jpg", 9);
+INSERT INTO images (id, image, place_id) VALUES (19, "https://avatars.mds.yandex.net/get-altay/1970665/2a000001877a0aa5e6f3a51f56320f2abe4b/orig", 9);

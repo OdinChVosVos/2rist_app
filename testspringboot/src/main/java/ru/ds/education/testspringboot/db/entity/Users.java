@@ -3,46 +3,76 @@ package ru.ds.education.testspringboot.db.entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 import javax.persistence.*;
-import java.util.Set;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "Users")
-public class Users {
+public class Users implements UserDetails {
 
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_generator")
     @SequenceGenerator(name = "users_generator", sequenceName = "users_seq", allocationSize = 1)
     private Long id;
 
-    private Long id_telegram;
-    private String name;
+    private String mail;
     private String password;
-    private boolean active;
+    private String phone;
     private String firstname;
     private String lastname;
-    private String phone;
-    private String mail;
-    private boolean agreement;
+    private String login;
 
-//    @ElementCollection(targetClass = Roles.class, fetch = FetchType.EAGER)
-//    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name="user_id"))
-//    @Enumerated(EnumType.STRING)
-//    private Set<Roles> roles;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    public Users(Long id_telegram, String name, String password, boolean active, String firstname, String lastname, String phone, String mail, boolean agreement) {
-        this.id_telegram = id_telegram;
-        this.name = name;
+    public Users(String mail, String password, String phone, String firstname, String lastname, String login, Role role) {
+        this.mail = mail;
         this.password = password;
-        this.active = active;
+        this.phone = phone;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.phone = phone;
-        this.mail = mail;
-        this.agreement = agreement;
+        this.login = login;
+        this.role = role;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Arrays.asList(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return mail;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

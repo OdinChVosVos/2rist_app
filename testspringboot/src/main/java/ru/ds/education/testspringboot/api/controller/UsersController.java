@@ -3,6 +3,7 @@ package ru.ds.education.testspringboot.api.controller;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,18 @@ public class UsersController {
     @Autowired
     private UsersService usersService;
 
+    @GetMapping
+    public ResponseEntity<String> demo(){
+        return ResponseEntity.ok("demo");
+    }
+
+    @ApiOperation(
+            value = "Удаление пользователя по почте"
+    )
+    @RequestMapping(value = "/remove/{mail}", method = RequestMethod.DELETE)
+    public void removeByMail(@PathVariable String mail){
+        usersService.removeByMail(mail);
+    }
 
     @ApiOperation(
             value = "Изменение пользователя"
@@ -29,13 +42,13 @@ public class UsersController {
         return usersService.updateUser(user);
     }
 
-    @ApiOperation(
-            value = "Добавление пользователя"
-    )
-    @PostMapping
-    public UsersDto signUp(@RequestBody UsersDto user){
-        return usersService.signUp(user);
-    }
+//    @ApiOperation(
+//            value = "Добавление пользователя"
+//    )
+//    @PostMapping
+//    public UsersDto signUp(@RequestBody UsersDto user){
+//        return usersService.signUp(user);
+//    }
 
     @ApiOperation(
             value = "Получение всех пользователей"
@@ -45,11 +58,12 @@ public class UsersController {
         return usersService.getAll();
     }
 
+
     @ApiOperation(
-            value = "Получение пользователя по ТГ id"
+            value = "Получение пользователя по почте"
     )
-    @RequestMapping(value = "/get/tg/{tgId}", method = RequestMethod.GET)
-    public UsersDto getByTgId(@PathVariable Long tgId){
-        return usersService.getByTgId(tgId);
+    @RequestMapping(value = "/get/{mail}", method = RequestMethod.GET)
+    public UsersDto getByMail(@PathVariable String mail){
+        return usersService.getByMail(mail);
     }
 }

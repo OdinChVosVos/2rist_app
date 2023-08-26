@@ -10,26 +10,30 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "Booked")
-public class Booked {
+@Table(name = "Places")
+public class Places {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "booked_generator")
-    @SequenceGenerator(name = "booked_generator", sequenceName = "booked_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "places_generator")
+    @SequenceGenerator(name = "places_generator", sequenceName = "places_seq", allocationSize = 1)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_tovar")
-    private Tovar tovar;
+    @JoinColumn(name = "category_id")
+    private Categories category;
 
-    private int bookedQuantity;
+    private String name;
+    private String url;
+    private String adress;
+    private String time_work;
+    private String position;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_user")
-    private Users user;
-
-    public Booked(Tovar tovar, int bookedQuantity) {
-        this.tovar = tovar;
-        this.bookedQuantity = bookedQuantity;
+     public Places(Categories category, String name, String url, String adress, String time_work, String position) {
+        this.category = category;
+        this.name = name;
+        this.url = url;
+        this.adress = adress;
+        this.time_work = time_work;
+        this.position = position;
     }
 }

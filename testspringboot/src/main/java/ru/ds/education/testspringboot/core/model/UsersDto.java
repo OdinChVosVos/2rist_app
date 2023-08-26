@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.ds.education.testspringboot.db.entity.Role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,17 +17,14 @@ public class UsersDto {
     @ApiModelProperty("id пользователя")
     private Long id;
 
-    @ApiModelProperty("telegram id пользователя")
-    private Long id_telegram;
-
-    @ApiModelProperty("Логин пользователя")
-    private String name;
+    @ApiModelProperty("Почта")
+    private String mail;
 
     @ApiModelProperty("Пароль пользователя")
     private String password;
 
-    @ApiModelProperty("Активность")
-    private boolean active;
+    @ApiModelProperty("Номер телефона")
+    private String phone;
 
     @ApiModelProperty("Имя пользователя")
     private String firstname;
@@ -34,13 +32,11 @@ public class UsersDto {
     @ApiModelProperty("Фамилия пользователя")
     private String lastname;
 
-    @ApiModelProperty("Номер телефона")
-    private String phone;
+    @ApiModelProperty("Логин пользователя")
+    private String login;
 
-    @ApiModelProperty("Почта")
-    private String mail;
+    @ApiModelProperty("Роль пользователя")
+    private Role role;
 
-    @ApiModelProperty("Соглашение на получение оповещений")
-    private boolean agreement;
 
 }

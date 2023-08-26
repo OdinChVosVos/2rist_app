@@ -4,19 +4,16 @@ package ru.ds.education.testspringboot.core.service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.ds.education.testspringboot.api.job.NullProperties;
 
-import ru.ds.education.testspringboot.core.model.RolesDto;
+import ru.ds.education.testspringboot.api.job.NullProperties;
 import ru.ds.education.testspringboot.core.model.UsersDto;
 
-import ru.ds.education.testspringboot.db.entity.Users;
 import ru.ds.education.testspringboot.core.mapper.UsersMapper;
+import ru.ds.education.testspringboot.db.entity.Users;
 import ru.ds.education.testspringboot.db.repository.UsersRepository;
-import ru.ds.education.testspringboot.db.repository.UsersRolesRepository;
 
 
 import java.util.List;
-import java.util.Objects;
 
 
 @Service
@@ -26,45 +23,45 @@ public class UsersService {
     private UsersRepository usersRepository;
 
     @Autowired
-    private UsersRolesRepository usersRolesRepository;
-
-    @Autowired
     private UsersMapper usersMapper;
 
 
-//    @Bean
-//    public PasswordEncoder passwordEncoder()
-//    {
-//        return new BCryptPasswordEncoder();
+//    public UsersDto signUp(UsersDto user){
+//        usersRepository.add(
+//                user.getMail(), user.getPassword(),
+//                true,
+////                passwordEncoder().encode(user.getPassword()),
+//                user.getPhone(), user.getFirstname(),
+//                user.getLastname(), user.getLogin()
+//        );
+//        UsersDto newUser = usersMapper.map(usersRepository.getByMail(user.getMail()), UsersDto.class);
+//        usersRolesRepository.add(newUser.getId(), 1L);
+//
+//        return newUser;
+//    }
+//
+//    public UsersDto signUpAdmin(UsersDto user, Long role_id){
+//        usersRepository.add(
+//                user.getMail(), user.getPassword(),
+//                true,
+////                passwordEncoder().encode(user.getPassword()),
+//                user.getPhone(), user.getFirstname(),
+//                user.getLastname(), user.getLogin()
+//        );
+//        UsersDto newUser = usersMapper.map(usersRepository.getByMail(user.getMail()), UsersDto.class);
+//        usersRolesRepository.add(newUser.getId(), role_id);
+//
+//        return newUser;
 //    }
 
-
-    public UsersDto signUp(UsersDto user){
-        usersRepository.add(
-                user.getId_telegram(), user.getName(),
-                user.getPassword(), true,
-//                passwordEncoder().encode(user.getPassword()),
-                user.getFirstname(), user.getLastname(),
-                user.getPhone(), user.getMail(), user.isAgreement()
-        );
-        UsersDto newUser = usersMapper.map(usersRepository.getByTgID(user.getId_telegram()), UsersDto.class);
-        usersRolesRepository.add(newUser.getId(), 1L);
-
-        return newUser;
-    }
-
-    public UsersDto signUpAdmin(UsersDto user, Long role_id){
-        usersRepository.add(
-                user.getId_telegram(), user.getName(),
-                user.getPassword(), true,
-//                passwordEncoder().encode(user.getPassword()),
-                user.getFirstname(), user.getLastname(),
-                user.getPhone(), user.getMail(), user.isAgreement()
-        );
-        UsersDto newUser = usersMapper.map(usersRepository.getByTgID(user.getId_telegram()), UsersDto.class);
-        usersRolesRepository.add(newUser.getId(), role_id);
-
-        return newUser;
+    public void removeByMail(String mail){
+        try{
+            if (mail.equals("Admin")) return;
+            usersRepository.delete(getByMail(mail).getId());
+        }
+        catch (RuntimeException e){
+            System.out.println(e);
+        }
     }
 
     public void delete(Long id){
@@ -78,7 +75,7 @@ public class UsersService {
     }
 
     public UsersDto updateUser(UsersDto user){
-        Users existingUser = usersRepository.getByTgID(user.getId_telegram());
+        Users existingUser = usersRepository.getByMail(user.getMail());
         BeanUtils.copyProperties(user, existingUser, NullProperties.getNullPropertyNames(user));
         return usersMapper.map(usersRepository.saveAndFlush(existingUser), UsersDto.class);
     }
@@ -87,16 +84,12 @@ public class UsersService {
         return usersMapper.mapAsList(usersRepository.findAll(), UsersDto.class);
     }
 
-    public UsersDto getByTgId(Long tgId){
-        return usersMapper.map(usersRepository.getByTgID(tgId), UsersDto.class);
+    public UsersDto getByMail(String mail){
+        return usersMapper.map(usersRepository.getByMail(mail), UsersDto.class);
     }
 
-    public UsersDto getByName(String name){
-        return usersMapper.map(usersRepository.getByName(name), UsersDto.class);
-    }
-
-    public boolean checkUsr(UsersDto user){
-        return getByName(user.getName())!=null && Objects.equals(getByName(user.getName()).getPassword(), user.getPassword());
-    }
+//    public boolean checkUsr(UsersDto user){
+//        return getByName(user.getName())!=null && Objects.equals(getByName(user.getName()).getPassword(), user.getPassword());
+//    }
 
 }

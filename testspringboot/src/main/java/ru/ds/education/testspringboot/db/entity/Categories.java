@@ -10,20 +10,17 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "Category")
-public class Category {
+@Table(name = "Categories")
+public class Categories {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "category_generator")
-    @SequenceGenerator(name = "category_generator", sequenceName = "category_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "categories_generator")
+    @SequenceGenerator(name = "categories_generator", sequenceName = "categories_seq", allocationSize = 1)
     private Long id;
 
     private String name;
-    private String description;
 
-
-    public Category(String name, String description) {
+    public Categories(String name, String description) {
         this.name = name;
-        this.description = description;
     }
 }
