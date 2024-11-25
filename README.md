@@ -1,4 +1,4 @@
-# The_Code_THat_Failed Command
+# The_Code_That_Failed Command
 ## Our product's name is *2rist* {Tourist}
 
 На этом репозитории лежит сторона бэка.
